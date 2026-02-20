@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4daeaddcfaaaf4c61be89467bd2b76ac
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 153251
+  packageName: Cubemap Blur
+  packageVersion: 1.0
+  assetPath: Assets/CubemapBlur/DemoScene/Prefabs/Shapes.prefab
+  uploadId: 442995

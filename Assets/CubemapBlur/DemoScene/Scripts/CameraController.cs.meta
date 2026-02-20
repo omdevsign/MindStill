@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b57689ce157c645528d0847d2cb5ee22
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 153251
+  packageName: Cubemap Blur
+  packageVersion: 1.0
+  assetPath: Assets/CubemapBlur/DemoScene/Scripts/CameraController.cs
+  uploadId: 442995

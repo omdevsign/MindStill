@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b2c4c7a00750d40408714471cda22248
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 153251
+  packageName: Cubemap Blur
+  packageVersion: 1.0
+  assetPath: Assets/CubemapBlur/DemoScene/Scripts/RotateController.cs
+  uploadId: 442995

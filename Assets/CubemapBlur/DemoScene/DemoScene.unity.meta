@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 1241c6867779847298607a08ada08aae
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 153251
+  packageName: Cubemap Blur
+  packageVersion: 1.0
+  assetPath: Assets/CubemapBlur/DemoScene/DemoScene.unity
+  uploadId: 442995

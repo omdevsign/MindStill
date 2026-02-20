@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 5ce1d49aa28c8ba43a0fb3b5e7687ec9
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _MainTex: {instanceID: 0}
+  - _MetallicSmooth: {instanceID: 0}
+  - _Normal: {instanceID: 0}
+  - _Occlusion: {instanceID: 0}
+  - _WindNoise: {fileID: 2800000, guid: c82da0f31cb2d8e4ebc6c36681957f32, type: 3}
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 123574
+  packageName: Remake - Mid Poly Stylized Meadows and Mountains
+  packageVersion: 2.2
+  assetPath: Assets/EmaceArt/Forest Meadows/Plugin/Grass.shader
+  uploadId: 829566
