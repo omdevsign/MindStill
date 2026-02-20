@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using PlayFab;
 using System.Collections;
-using UnityEngine.UI; // Required for the Text component
+using UnityEngine.UI; 
 
 public class AppInitializer : MonoBehaviour
 {
@@ -14,13 +14,9 @@ public class AppInitializer : MonoBehaviour
 
     void Start()
     {
-        // Start the dots animation
         StartCoroutine(AnimateLoadingDots());
-        
-        // Start the actual logic
         StartCoroutine(CheckLoginStatus());
     }
-
     private IEnumerator AnimateLoadingDots()
     {
         int dotCount = 0;
@@ -35,13 +31,12 @@ public class AppInitializer : MonoBehaviour
                 loadingText.text = baseMessage + dots;
             }
 
-            yield return new WaitForSeconds(0.5f); // Speed of the dots
+            yield return new WaitForSeconds(0.5f); 
         }
     }
-
     private IEnumerator CheckLoginStatus()
     {
-        yield return new WaitForSeconds(1.5f); // Small delay to show the animation
+        yield return new WaitForSeconds(1.5f); 
 
         if (PlayerPrefs.HasKey("MyCustomDeviceID"))
         {
@@ -55,7 +50,7 @@ public class AppInitializer : MonoBehaviour
 
             PlayFabClientAPI.LoginWithCustomID(request, 
                 result => {
-                    isDoneLoading = true; // Stop the dots
+                    isDoneLoading = true; 
                     PlayFabAuth.SetPlayerId(result.PlayFabId);
                     SceneManager.LoadScene("MainMenu");
                 }, 

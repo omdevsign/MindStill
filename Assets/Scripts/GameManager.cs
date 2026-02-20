@@ -53,7 +53,6 @@ public class GameManager : MonoBehaviour
         if (resilienceManager == null) 
             resilienceManager = FindFirstObjectByType<ResilienceManager>();
     }
-
     void Update()
     {
         if (isGameOver) return; 
@@ -67,9 +66,8 @@ public class GameManager : MonoBehaviour
             MindfulnessController mc = FindFirstObjectByType<MindfulnessController>();
             if (mc != null && !mc.AchievementIsAlreadyEarned("ACH_CENTURY"))
             {
-                // We use the same 'SendAchievement' logic pattern
                 PlayFabAuth.SubmitPlayFabEvent("CenturyEvent");
-                // Mark it true locally in MC so it doesn't run every frame
+                
                 mc.SetLocalAchievementTrue("ACH_CENTURY"); 
             }
         }
@@ -105,12 +103,10 @@ public class GameManager : MonoBehaviour
             GameOver();
         }
     }
-    
     public bool IsGameFlowBlocked()
     {
         return isGameOver || isPaused;
     }
-    
     public bool pausePanelActive()
     {
         return Time.timeScale == 0f && !isGameOver; 
@@ -119,12 +115,10 @@ public class GameManager : MonoBehaviour
     {
         anxietyTimer = Random.Range(minAnxietyTime, maxAnxietyTime);
     }
-
     private void ResetChallengeFlag()
     {
         challengeTriggered = false;
     }
-
     private void TriggerInvisibleChallenge()
     {
         if (resilienceManager != null)
@@ -135,7 +129,6 @@ public class GameManager : MonoBehaviour
             );
         }
     }
-
     private void TriggerMilestoneChallenge()
     {
         if (resilienceManager != null)
@@ -151,7 +144,6 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene("GameScene");
     }
-
     public void QuitGame()
     {
         Application.Quit();
@@ -164,7 +156,6 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
-
     public void PauseGame()
     {
         if (isGameOver) return;
@@ -174,28 +165,13 @@ public class GameManager : MonoBehaviour
         pausePanel.SetActive(true);
         Debug.Log("Game Paused.");
     }
-
     public void ResumeGame()
     {
         isPaused = false;
         pausePanel.SetActive(false);
 
         StartCoroutine(ResumeCountdownRoutine());
-        /*ResilienceManager rm = FindFirstObjectByType<ResilienceManager>();
-        if (rm != null && rm.IsChallengeRunning()) 
-        {
-            Time.timeScale = 0.05f; 
-            Debug.Log("Resuming back into Challenge Slow-Mo");
-        }
-        else
-        {
-            Time.timeScale = 1f; 
-        }
-
-        Time.fixedDeltaTime = 0.02f * Time.timeScale;
-        Debug.Log("Game Resumed.");*/
     }
-
     private IEnumerator ResumeCountdownRoutine()
     {
         countdownText.gameObject.SetActive(true);
@@ -213,7 +189,6 @@ public class GameManager : MonoBehaviour
 
         ApplyCorrectTimeScale();
     }
-    
     private void ApplyCorrectTimeScale()
     {
         ResilienceManager rm = FindFirstObjectByType<ResilienceManager>();
@@ -229,26 +204,11 @@ public class GameManager : MonoBehaviour
 
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
-
     public void GoToMainMenu()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
-
-    /*private void GameOver()
-    {
-        isGameOver = true;
-        Time.timeScale = 0f; 
-        
-        Debug.Log("Game Over! Time Survived: " + sessionScore.ToString("F1") + " seconds.");
-        if (sessionScore > PlayerPrefs.GetFloat("HighScore", 0))
-        {
-            PlayerPrefs.SetFloat("HighScore", sessionScore);
-            PlayerPrefs.Save();
-        }
-    }*/
-
     public void GameOver()
     {
         if (isGameOver) return;
@@ -270,7 +230,6 @@ public class GameManager : MonoBehaviour
         }
         Debug.Log("Game Over. Scores Sent.");
     }
-
     private void SendAllStatistics(int sessionScore)
     {
         var statsToUpdate = new List<StatisticUpdate>();
@@ -306,7 +265,7 @@ public class GameManager : MonoBehaviour
     }
     private void RetrieveAndDisplayHighScore()
     {
-        // Request only the current player's stats
+        
         var dataRequest = new GetPlayerStatisticsRequest();
         PlayFabClientAPI.GetPlayerStatistics(dataRequest, OnGetPersonalStatsSuccess, OnGetLeaderboardError);
     }

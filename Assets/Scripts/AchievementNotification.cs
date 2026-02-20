@@ -15,20 +15,16 @@ public class AchievementNotification : MonoBehaviour
         Instance = this;
         popUpPanel.SetActive(false);
     }
-
     public void ShowNotification(string name)
     {
         StopAllCoroutines();
         StartCoroutine(DisplayRoutine(name));
     }
-
     private IEnumerator DisplayRoutine(string name)
     {
         achievementNameText.text = name;
         popUpPanel.SetActive(true);
-
         yield return new WaitForSeconds(displayDuration);
-
         popUpPanel.SetActive(false);
     }
 }

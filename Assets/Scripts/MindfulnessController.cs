@@ -60,7 +60,6 @@ public class MindfulnessController : MonoBehaviour
     private bool challengerAchieved = false;
     private int lifetimeChallenges = 0;
     private int lifetimePlaytime = 0;
-
     private GameManager gm;
     private ResilienceManager rm;
 
@@ -68,13 +67,11 @@ public class MindfulnessController : MonoBehaviour
     {
         gm = Object.FindFirstObjectByType<GameManager>();
         rm = Object.FindFirstObjectByType<ResilienceManager>();
-
         SyncAchievementStatus();
         FetchLifetimeStats();
         calmnessSlider.value = 50f; 
         CalculateNewFocusDuration();
     }
-
     void Update()
     {
         if (gm == null || Time.timeScale == 0f) return;
@@ -82,9 +79,7 @@ public class MindfulnessController : MonoBehaviour
         ManageBreathingRhythm();
         HandlePlayerInput();
         UpdateFogAndAnxiety();
-
         if (gm.isGameOver || gm.countdownText.gameObject.activeSelf) return;
-        
         totalSessionTime += Time.deltaTime;
         if (totalSessionTime >= 300f && !marathonAchieved)
         {
@@ -92,8 +87,6 @@ public class MindfulnessController : MonoBehaviour
             SendAchievement("MarathonerEvent", "ACH_MARATHON");
             Debug.Log("Achievement Sent: Resilience Runner");
         }
-
-        
         if (calmnessSlider.value >= 70f)
         {
             highCalmnessTimer += Time.deltaTime;
@@ -109,7 +102,6 @@ public class MindfulnessController : MonoBehaviour
             highCalmnessTimer = 0f; 
         }
     }
-
     private void ManageBreathingRhythm()
     {
         timer += Time.deltaTime;
@@ -141,10 +133,8 @@ public class MindfulnessController : MonoBehaviour
         {
             scaleMultiplier = Mathf.Lerp(0.5f, 1.5f, normalizedTime * 2f);
         }
-
         breathingGuide.localScale = new Vector3(scaleMultiplier, scaleMultiplier, 1f);
     }
-
     private void HandlePlayerInput()
     {
         if (Input.GetKey(KeyCode.Space)) 
@@ -169,7 +159,6 @@ public class MindfulnessController : MonoBehaviour
         }
         calmnessSlider.value = Mathf.Clamp(calmnessSlider.value, 0f, 100f);
     }
-
     private void UpdateFogAndAnxiety()
     {
         float normalizedCalmness = calmnessSlider.value / 100f;
@@ -232,7 +221,6 @@ public class MindfulnessController : MonoBehaviour
         affirmationText.text = message;
         Invoke("ClearAffirmation", 3f);
     }
-
     private void ClearAffirmation()
     {
         if (affirmationText != null)
@@ -240,12 +228,10 @@ public class MindfulnessController : MonoBehaviour
             affirmationText.text = "";
         }
     }
-    
     public void ApplyAnxietyPenalty(float penaltyAmount)
     {
         calmnessSlider.value -= penaltyAmount;
         calmnessSlider.value = Mathf.Clamp(calmnessSlider.value, 0f, 100f);
-
         CalculateNewFocusDuration();
     }
     public void SetPassiveAnxietyMultiplier(float multiplier)
@@ -260,7 +246,6 @@ public class MindfulnessController : MonoBehaviour
         breathDuration = newDuration;
         Debug.Log($"Calmness: {calmnessSlider.value:F0}, New Focus Duration Required: {breathDuration:F2}s");
     }
-
     private void TriggerGameOver()
     {
         Debug.Log("GAME OVER: All focus lost.");
@@ -338,16 +323,14 @@ public class MindfulnessController : MonoBehaviour
     }
     public void CheckRankAchievementsAtGameOver()
     {
-        // Total = What we had before + what we just did this session
         int grandTotalSeconds = lifetimePlaytime + (int)totalSessionTime;
-
         if (grandTotalSeconds >= 15000) SendAchievement("RankZenEvent", "ACH_ZEN");
         else if (grandTotalSeconds >= 5000) SendAchievement("RankResilientEvent", "ACH_RESILIENT");
         else if (grandTotalSeconds >= 1000) SendAchievement("RankInitiateEvent", "ACH_INITIATE");
     }
     public void IncrementChallengeCount()
     {
-        lifetimeChallenges++; // Increment our local tracking of the cloud stat
+        lifetimeChallenges++; 
         if (lifetimeChallenges >= 50 && !AchievementIsAlreadyEarned("ACH_CHALLENGER"))
         {
             SendAchievement("ChallengerEvent", "ACH_CHALLENGER");

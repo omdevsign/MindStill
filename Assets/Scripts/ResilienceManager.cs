@@ -7,7 +7,6 @@ using PlayFab.ClientModels;
 
 public class ResilienceManager : MonoBehaviour
 {
-    
     public enum ChallengeType { InnerCritic, TensionRelease, Paradox, BoxBreathing, Grounding }
     public enum TriggerType { ObstacleHit, InvisibleAnxiety, Milestone }
 
@@ -44,15 +43,12 @@ public class ResilienceManager : MonoBehaviour
     [Header("Challenge 5: Grounding (Key Sequence)")]
     [SerializeField] private GameObject groundingUI;
     [SerializeField] private Text sequenceText; 
-    
-    
+
     private bool challengeActive = false;
     private ChallengeType currentChallenge;
     private MindfulnessController mc;
     private GameManager gm;
     private float originalFixedDeltaTime;
-    
-    
     private int currentTaps = 0;
     private float holdTimer = 0f;
     private float paradoxTimer = 0f;
@@ -82,12 +78,10 @@ public class ResilienceManager : MonoBehaviour
             }
             return; 
         }
-        
         if (gm != null && gm.IsGameFlowBlocked())
         {
             return; 
         }
-
         if (Input.GetKeyDown(KeyCode.Alpha1)) TriggerChallenge(TriggerType.Milestone, ChallengeType.InnerCritic);
         if (Input.GetKeyDown(KeyCode.Alpha2)) TriggerChallenge(TriggerType.Milestone, ChallengeType.TensionRelease);
         if (Input.GetKeyDown(KeyCode.Alpha3)) TriggerChallenge(TriggerType.Milestone, ChallengeType.Paradox);
@@ -95,7 +89,6 @@ public class ResilienceManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha5)) TriggerChallenge(TriggerType.Milestone, ChallengeType.Grounding);
 
         if (!challengeActive) return;
-
         switch (currentChallenge)
         {
             case ChallengeType.InnerCritic: UpdateInnerCritic(); break;
@@ -109,17 +102,13 @@ public class ResilienceManager : MonoBehaviour
     public void TriggerChallenge(TriggerType trigger, ChallengeType specificChallenge)
     {
         if (challengeActive) return;
-        
         Time.timeScale = 0.05f; 
         Time.fixedDeltaTime = originalFixedDeltaTime * Time.timeScale; 
         challengeActive = true;
         currentChallenge = specificChallenge;
-        
         SetupTriggerVisuals(trigger);
-        
         resiliencePanel.SetActive(true);
         DeactivateAllSubPanels();
-
         switch (specificChallenge)
         {
             case ChallengeType.InnerCritic:
@@ -158,13 +147,8 @@ public class ResilienceManager : MonoBehaviour
                 UpdateGroundingText();
                 break;
         }
-        // Increment local count
         localChallengesFaced++;
-
-        // Update PlayFab Statistic for Leaderboard
-        UpdateChallengeStat(1); // Increment by 1
-
-        // Check for Achievement (e.g., 50 challenges faced)
+        UpdateChallengeStat(1); 
         MindfulnessController mc = Object.FindFirstObjectByType<MindfulnessController>();
         if (mc != null)
         {
@@ -178,7 +162,6 @@ public class ResilienceManager : MonoBehaviour
     }
     private void UpdateChallengeStat(int amount)
     {
-        // This creates a list of stats to update on PlayFab
         var request = new UpdatePlayerStatisticsRequest {
             Statistics = new List<StatisticUpdate> {
                 new StatisticUpdate { 
@@ -187,20 +170,16 @@ public class ResilienceManager : MonoBehaviour
                 }
             }
         };
-
         PlayFabClientAPI.UpdatePlayerStatistics(request, result => {
             Debug.Log("Successfully updated TotalChallengesFaced on PlayFab.");
         }, error => {
             Debug.LogError("Error updating stats: " + error.GenerateErrorReport());
         });
     }
-    
     public bool IsChallengeRunning()
     {
         return challengeActive;
     }
-
-    
     private void UpdateInnerCritic()
     {
         if (Input.GetKeyDown(KeyCode.Space))
@@ -210,7 +189,6 @@ public class ResilienceManager : MonoBehaviour
             if (currentTaps >= requiredTaps) CompleteChallenge(true);
         }
     }
-
     private void UpdateTensionRelease()
     {
         if (Input.GetKey(KeyCode.Space))
@@ -224,7 +202,6 @@ public class ResilienceManager : MonoBehaviour
                 tensionInstructionText.color = Color.red;
             }
         }
-        
         if (Input.GetKeyUp(KeyCode.Space))
         {
             if (holdTimer >= 3f) CompleteChallenge(true); 
@@ -237,10 +214,8 @@ public class ResilienceManager : MonoBehaviour
             }
         }
     }
-
     private void UpdateParadox()
     {
-        
         if (Input.anyKey)
         {
             paradoxTimer = 0f;
@@ -252,7 +227,6 @@ public class ResilienceManager : MonoBehaviour
             paradoxTimer += Time.unscaledDeltaTime;
             paradoxTimerText.color = Color.white;
             paradoxTimerText.text = "Stay still... " + (10f - paradoxTimer).ToString("F1") + "s";
-            
             if (paradoxTimer >= 10f) CompleteChallenge(true);
         }
     }
@@ -260,18 +234,15 @@ public class ResilienceManager : MonoBehaviour
     private void UpdateBoxBreathing()
     {
         holdTimer += Time.unscaledDeltaTime;
-        
         if (breathingStage == 0) 
         {
             breatheStatusText.text = "Inhale... (Hold Space)";
             breathSlider.value = holdTimer / 4f;
-            
             if (!Input.GetKey(KeyCode.Space)) 
             {
                 holdTimer = 0;
                 breathSlider.value = 0;
             }
-
             if (holdTimer >= 4f) 
             {
                 holdTimer = 0;
@@ -284,14 +255,12 @@ public class ResilienceManager : MonoBehaviour
         {
             breatheStatusText.text = "Hold... (Keep Holding for 4s)";
             breathSlider.value = 1f; 
-            
             if (transitionBuffer > 0) transitionBuffer -= Time.unscaledDeltaTime;
             else if (!Input.GetKey(KeyCode.Space)) 
             {
                 breathingStage = 0; 
                 holdTimer = 0;
             }
-
             if (holdTimer >= 4f)
             {
                 holdTimer = 0;
@@ -304,28 +273,24 @@ public class ResilienceManager : MonoBehaviour
         {
             breatheStatusText.text = "Exhale... (Release Space)";
             breathSlider.value = 1f - (holdTimer / 4f);
-            
             if (transitionBuffer > 0)
             {
                 transitionBuffer -= Time.unscaledDeltaTime;
             }
             else
             {
-                
                 if (Input.GetKey(KeyCode.Space)) 
                 {
                     breathingStage = 0; 
                     holdTimer = 0;
                 }
             }
-
             if (holdTimer >= 4f) 
             {
                 CompleteChallenge(true); 
             }
         }
     }
-
     private void UpdateGrounding()
     {
         if (Input.GetKeyDown(groundingSequence[groundingIndex]))
@@ -334,12 +299,8 @@ public class ResilienceManager : MonoBehaviour
             UpdateGroundingText();
             if (groundingIndex >= groundingSequence.Length) CompleteChallenge(true);
         }
-        else if (Input.anyKeyDown) 
-        {
-            
-        }
+        else if (Input.anyKeyDown) { }
     }
-
     private void GenerateGroundingSequence()
     {
         groundingSequence = new KeyCode[4];
@@ -353,7 +314,6 @@ public class ResilienceManager : MonoBehaviour
             if (r==3) groundingSequence[i] = KeyCode.RightArrow;
         }
     }
-
     private void UpdateGroundingText()
     {
         string display = "";
@@ -364,7 +324,6 @@ public class ResilienceManager : MonoBehaviour
         }
         sequenceText.text = display;
     }
-
     private void SetupTriggerVisuals(TriggerType trigger)
     {
         switch (trigger)
@@ -383,7 +342,6 @@ public class ResilienceManager : MonoBehaviour
                 break;
         }
     }
-
     private void DeactivateAllSubPanels()
     {
         innerCriticUI.SetActive(false);
@@ -392,14 +350,12 @@ public class ResilienceManager : MonoBehaviour
         breathingUI.SetActive(false);
         groundingUI.SetActive(false);
     }
-
     private void CompleteChallenge(bool success)
     {
         challengeActive = false;
         resiliencePanel.SetActive(false);
         Time.timeScale = 1f; 
         Time.fixedDeltaTime = originalFixedDeltaTime;
-
         if (success && mc != null)
         {
             if (mc.GetCalmness() < 20f && !mc.AchievementIsAlreadyEarned("ACH_CLUTCH_CALM"))

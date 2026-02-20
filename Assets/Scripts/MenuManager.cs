@@ -24,7 +24,6 @@ private void OnGetStatsSuccess(GetPlayerStatisticsResult result)
     {
         int totalTime = 0;
         int personalHighScore = 0;
-
         foreach (var stat in result.Statistics)
         {
             if (stat.StatisticName == "TotalPlaytime")
@@ -46,7 +45,6 @@ private void OnGetStatsSuccess(GetPlayerStatisticsResult result)
     {
         SceneManager.LoadScene("GameScene"); 
     }
-
     public void QuitGame()
     {
         Application.Quit();

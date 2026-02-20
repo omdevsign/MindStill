@@ -11,7 +11,6 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
-
         float horizontalInput = Input.GetAxis("Horizontal");
         float xMove = horizontalInput * sideSpeed * Time.deltaTime;
         

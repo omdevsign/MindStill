@@ -20,22 +20,18 @@ public class AuthUIManager : MonoBehaviour
     [Header("Status")]
     [SerializeField] private Text statusText;
 
-    // --- TOGGLE LOGIC ---
     public void ShowSignup() 
     {
         loginPanel.SetActive(false);
         signupPanel.SetActive(true);
         statusText.text = "";
     }
-
     public void ShowLogin() 
     {
         signupPanel.SetActive(false);
         loginPanel.SetActive(true);
         statusText.text = "";
     }
-
-    // --- LOGIN LOGIC ---
     public void OnLoginClicked()
     {
         var request = new LoginWithEmailAddressRequest 
@@ -47,8 +43,6 @@ public class AuthUIManager : MonoBehaviour
         statusText.text = "Logging in...";
         PlayFabClientAPI.LoginWithEmailAddress(request, OnAuthSuccess, OnError);
     }
-
-    // --- SIGNUP LOGIC ---
     public void OnSignupClicked()
     {
         if (string.IsNullOrEmpty(signupEmail.text) || string.IsNullOrEmpty(signupPassword.text)) 
@@ -57,7 +51,6 @@ public class AuthUIManager : MonoBehaviour
             return;
         }
 
-        //signupButton.interactable = false; 
         statusText.text = "Creating account...";
         var request = new RegisterPlayFabUserRequest 
         {
@@ -70,18 +63,12 @@ public class AuthUIManager : MonoBehaviour
         statusText.text = "Creating account...";
         PlayFabClientAPI.RegisterPlayFabUser(request, OnAuthSuccess, OnError);
     }
-
-    // --- CALLBACKS ---
     private void OnAuthSuccess(LoginResult result) 
     {
         PlayFabAuth.SetPlayerId(result.PlayFabId);
-
-        // Generate a unique ID for this specific PC/Device
         string deviceID = SystemInfo.deviceUniqueIdentifier;
         PlayerPrefs.SetString("MyCustomDeviceID", deviceID);
         PlayerPrefs.Save();
-
-        // LINK this device to the account so Silent Login works later
         var linkRequest = new LinkCustomIDRequest {
             CustomId = deviceID,
             ForceLink = true
@@ -93,19 +80,12 @@ public class AuthUIManager : MonoBehaviour
 
         SceneManager.LoadScene("MainMenu");
     }
-
     private void OnAuthSuccess(RegisterPlayFabUserResult result) 
     {
        statusText.text = "Account created! Syncing...";
-        
-        // We manually set the ID immediately from the registration result
         PlayFabAuth.SetPlayerId(result.PlayFabId);
-
-        // Instead of calling OnLoginClicked (which uses Login UI fields), 
-        // we jump straight to the Main Menu because the user is technically authorized.
         SceneManager.LoadScene("MainMenu");
     }
-
     private void OnError(PlayFabError error)
     {
         statusText.text = "Error: " + error.ErrorMessage;
