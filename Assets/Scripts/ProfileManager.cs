@@ -12,7 +12,7 @@ public class ProfileManager : MonoBehaviour
     [SerializeField] private Text playFabIdText;
     [SerializeField] private Text highScoreText;
     [SerializeField] private Text totalPlaytimeText;
-    [SerializeField] private Text totalAchievementsText;
+    [SerializeField] private Text challengesFacedText;
     [SerializeField] private Text rankNameText;
     [SerializeField] private Text nextLevelText;
 
@@ -20,6 +20,7 @@ public class ProfileManager : MonoBehaviour
     {
         profilePanel.SetActive(true);
         LoadProfileData();
+        GetPlayerProfileData();
     }
 
     private void LoadProfileData()
@@ -48,15 +49,23 @@ public class ProfileManager : MonoBehaviour
         // Set Stats
         int highScore = 0;
         int playtime = 0;
+        int challenges = 0; // 1. Added variable to hold the value
 
         foreach (var stat in result.InfoResultPayload.PlayerStatistics)
         {
             if (stat.StatisticName == "TimeSurvivedHighScore") highScore = stat.Value;
             if (stat.StatisticName == "TotalPlaytime") playtime = stat.Value;
+            
+            // 2. Check for the specific challenge statistic here
+            if (stat.StatisticName == "TotalChallengesFaced") challenges = stat.Value;
         }
 
         highScoreText.text = "Personal Best: " + highScore + "s";
         totalPlaytimeText.text = "Total Playtime: " + FormatTime(playtime);
+        
+        // 3. Update the UI text with the retrieved value
+        challengesFacedText.text = "Challenges Faced: " + challenges;
+
         UpdateLevelDisplay(playtime);
     }
 
@@ -65,29 +74,20 @@ public class ProfileManager : MonoBehaviour
         System.TimeSpan t = System.TimeSpan.FromSeconds(seconds);
         return string.Format("{0:D2}H:{1:D2}M:{2:D2}S", t.Hours, t.Minutes, t.Seconds);
     }
-    public void ProcessAchievementCount(object resultData)
+    public void GetPlayerProfileData()
     {
-        // Serialize and Deserialize the cloud script result just like in your AchievementsUIManager
-        string json = PlayFab.Json.PlayFabSimpleJson.SerializeObject(resultData);
-        var achievementData = PlayFab.Json.PlayFabSimpleJson.DeserializeObject<PlayFab.Json.JsonObject>(json);
-        
-        if (achievementData == null || !achievementData.ContainsKey("Achievements")) return;
-        
-        PlayFab.Json.JsonArray achievements = achievementData["Achievements"] as PlayFab.Json.JsonArray;
-        
-        int earnedCount = 0;
-        int totalCount = achievements.Count;
-
-        foreach (var achievementObj in achievements)
-        {
-            PlayFab.Json.JsonObject ach = achievementObj as PlayFab.Json.JsonObject;
-            if (ach != null && ach["Status"].ToString() == "Granted")
+        var request = new GetPlayerStatisticsRequest();
+        PlayFabClientAPI.GetPlayerStatistics(request, result => {
+            foreach (var stat in result.Statistics)
             {
-                earnedCount++;
+                if (stat.StatisticName == "TotalChallengesFaced")
+                {
+                    challengesFacedText.text = "Challenges Faced: " + stat.Value;
+                }
             }
-        }
-
-        totalAchievementsText.text = "Achievements: " + earnedCount + " / " + totalCount;
+        }, error => {
+            Debug.LogError("Could not fetch profile statistics.");
+        });
     }
     private void UpdateLevelDisplay(int totalSeconds)
     {

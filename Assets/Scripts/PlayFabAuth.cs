@@ -76,10 +76,24 @@ public class PlayFabAuth : MonoBehaviour
     private static void OnEventWriteSuccess(string eventName) 
     {
         Debug.Log($"PlayFab Event '{eventName}' submitted successfully."); 
+        
         string friendlyName = "New Milestone!";
+
+        // Original Set
         if (eventName == "FirstFocusEvent") friendlyName = "First Step";
         if (eventName == "MarathonerEvent") friendlyName = "Resilience Runner";
         if (eventName == "MindfulMasterEvent") friendlyName = "Master of Stillness";
+
+        // New Mechanics Set
+        if (eventName == "CenturyEvent") friendlyName = "Centurion";
+        if (eventName == "BreathMasterEvent") friendlyName = "Rhythm Keeper";
+        if (eventName == "ClutchCalmEvent") friendlyName = "Cool Under Pressure";
+
+        // Progress & Rank Set
+        if (eventName == "ChallengerEvent") friendlyName = "The Challenger";
+        if (eventName == "HandleRankInitiate") friendlyName = "Calm Initiate";
+        if (eventName == "RankResilientEvent") friendlyName = "Resilient Soul";
+        if (eventName == "RankZenEvent") friendlyName = "Zen Master";
 
         if (AchievementNotification.Instance != null)
         {
@@ -129,11 +143,6 @@ public class PlayFabAuth : MonoBehaviour
         {
             Debug.Log("4. Found UIManager, passing data...");
             uiManager.DisplayAchievements(result.FunctionResult);
-        }
-        ProfileManager profileUI = Object.FindFirstObjectByType<ProfileManager>();
-        if (profileUI != null && profileUI.gameObject.activeInHierarchy)
-        {
-            profileUI.ProcessAchievementCount(result.FunctionResult);
         }
     }
 
