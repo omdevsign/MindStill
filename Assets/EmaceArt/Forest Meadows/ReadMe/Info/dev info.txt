@@ -1,0 +1,2 @@
+You can see green colliders on the stage. Turn off the component "mesh renderer"
+before creating the game build or entering play mode

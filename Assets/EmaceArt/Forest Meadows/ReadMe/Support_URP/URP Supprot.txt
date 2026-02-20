@@ -1,0 +1,15 @@
+Hi.
+
+Watch the video to see the package installation process.
+Download: https://youtu.be/kpkEOKH4B-Y
+
+Download the URP materials and terrain.
+I also made some corrections models are included in the package.
+Download: https://drive.google.com/file/d/1sXRedWbmkci4011b8HF-fy0fbq96RjGc/view?usp=sharing
+
+You'll see some pink assets at the end of the video, but that's already fixed in the latest version of the package.
+
+At the moment, the assets use several materials, but I will send the asset store update soon.
+Good luck;)
+
+Wait for the next URP fixes for the remaining packages.
