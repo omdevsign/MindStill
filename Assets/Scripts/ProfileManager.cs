@@ -93,6 +93,9 @@ public class ProfileManager : MonoBehaviour
     {
         string rank;
         string next;
+        
+        // Get reference to MindfulnessController to check/set achievements
+        MindfulnessController mc = Object.FindFirstObjectByType<MindfulnessController>();
 
         if (totalSeconds < 1000)
         {
@@ -103,16 +106,34 @@ public class ProfileManager : MonoBehaviour
         {
             rank = "Calm Initiate";
             next = (5000 - totalSeconds) + "s until Resilient Soul";
+            
+            // TRIGGER RANK 1
+            if (mc != null && !mc.AchievementIsAlreadyEarned("ACH_INITIATE")) {
+                mc.SetLocalAchievementTrue("ACH_INITIATE");
+                PlayFabAuth.SubmitPlayFabEvent("RankInitiateEvent");
+            }
         }
         else if (totalSeconds < 15000)
         {
             rank = "Resilient Soul";
             next = (15000 - totalSeconds) + "s until Zen Master";
+
+            // TRIGGER RANK 2
+            if (mc != null && !mc.AchievementIsAlreadyEarned("ACH_RESILIENT")) {
+                mc.SetLocalAchievementTrue("ACH_RESILIENT");
+                PlayFabAuth.SubmitPlayFabEvent("RankResilientEvent");
+            }
         }
         else
         {
             rank = "Zen Master";
             next = "Maximum Rank Achieved";
+
+            // TRIGGER RANK 3
+            if (mc != null && !mc.AchievementIsAlreadyEarned("ACH_ZEN")) {
+                mc.SetLocalAchievementTrue("ACH_ZEN");
+                PlayFabAuth.SubmitPlayFabEvent("RankZenEvent");
+            }
         }
 
         rankNameText.text = "Rank: " + rank;

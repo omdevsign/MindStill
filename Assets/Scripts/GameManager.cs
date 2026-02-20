@@ -263,6 +263,11 @@ public class GameManager : MonoBehaviour
         {
             RetrieveAndDisplayHighScore();
         }
+        MindfulnessController mc = Object.FindFirstObjectByType<MindfulnessController>();
+        if (mc != null)
+        {
+            mc.CheckRankAchievementsAtGameOver();
+        }
         Debug.Log("Game Over. Scores Sent.");
     }
 

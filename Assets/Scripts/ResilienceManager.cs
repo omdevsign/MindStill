@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI; 
 using System.Collections;
+using System.Collections.Generic;
+using PlayFab;
+using PlayFab.ClientModels;
 
 public class ResilienceManager : MonoBehaviour
 {
@@ -57,6 +60,7 @@ public class ResilienceManager : MonoBehaviour
     private KeyCode[] groundingSequence;
     private int groundingIndex = 0;
     public bool clutchCalmAchieved = false;
+    private int localChallengesFaced = 0;
 
     void Start()
     {
@@ -154,6 +158,41 @@ public class ResilienceManager : MonoBehaviour
                 UpdateGroundingText();
                 break;
         }
+        // Increment local count
+        localChallengesFaced++;
+
+        // Update PlayFab Statistic for Leaderboard
+        UpdateChallengeStat(1); // Increment by 1
+
+        // Check for Achievement (e.g., 50 challenges faced)
+        MindfulnessController mc = Object.FindFirstObjectByType<MindfulnessController>();
+        if (mc != null)
+        {
+            mc.IncrementChallengeCount();
+        }
+        if (localChallengesFaced >= 50 && mc != null && !mc.AchievementIsAlreadyEarned("ACH_CHALLENGER"))
+        {
+            mc.SetLocalAchievementTrue("ACH_CHALLENGER");
+            PlayFabAuth.SubmitPlayFabEvent("ChallengerEvent");
+        }
+    }
+    private void UpdateChallengeStat(int amount)
+    {
+        // This creates a list of stats to update on PlayFab
+        var request = new UpdatePlayerStatisticsRequest {
+            Statistics = new List<StatisticUpdate> {
+                new StatisticUpdate { 
+                    StatisticName = "TotalChallengesFaced", 
+                    Value = amount 
+                }
+            }
+        };
+
+        PlayFabClientAPI.UpdatePlayerStatistics(request, result => {
+            Debug.Log("Successfully updated TotalChallengesFaced on PlayFab.");
+        }, error => {
+            Debug.LogError("Error updating stats: " + error.GenerateErrorReport());
+        });
     }
     
     public bool IsChallengeRunning()

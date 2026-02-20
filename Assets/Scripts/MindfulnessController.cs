@@ -54,6 +54,12 @@ public class MindfulnessController : MonoBehaviour
     private bool mindfulMasterAchieved = false;
     private int breathCycleCount = 0;
     private bool breathMasterAchieved = false;
+    private bool initiateAchieved = false;
+    private bool resilientAchieved = false;
+    private bool zenAchieved = false;
+    private bool challengerAchieved = false;
+    private int lifetimeChallenges = 0;
+    private int lifetimePlaytime = 0;
 
     private GameManager gm;
     private ResilienceManager rm;
@@ -64,6 +70,7 @@ public class MindfulnessController : MonoBehaviour
         rm = Object.FindFirstObjectByType<ResilienceManager>();
 
         SyncAchievementStatus();
+        FetchLifetimeStats();
         calmnessSlider.value = 50f; 
         CalculateNewFocusDuration();
     }
@@ -277,6 +284,12 @@ public class MindfulnessController : MonoBehaviour
         if (id == "ACH_CENTURY" && gm != null && gm.centuryAchieved) return true;
         if (id == "ACH_BREATH_MASTER" && breathMasterAchieved) return true;
         if (id == "ACH_CLUTCH_CALM" && rm != null && rm.clutchCalmAchieved) return true;
+
+        if (id == "ACH_INITIATE" && initiateAchieved) return true;
+        if (id == "ACH_RESILIENT" && resilientAchieved) return true;
+        if (id == "ACH_ZEN" && zenAchieved) return true;
+        if (id == "ACH_CHALLENGER" && challengerAchieved) return true;
+
         return false;
     }
     public void SyncAchievementStatus()
@@ -289,6 +302,12 @@ public class MindfulnessController : MonoBehaviour
             if (gm != null && result.Data.ContainsKey("ACH_CENTURY")) gm.centuryAchieved = true;
             if (result.Data.ContainsKey("ACH_BREATH_MASTER")) breathMasterAchieved = true;
             if (rm != null && result.Data.ContainsKey("ACH_CLUTCH_CALM")) rm.clutchCalmAchieved = true;
+
+            if (result.Data.ContainsKey("ACH_INITIATE")) initiateAchieved = true;
+            if (result.Data.ContainsKey("ACH_RESILIENT")) resilientAchieved = true;
+            if (result.Data.ContainsKey("ACH_ZEN")) zenAchieved = true;
+            if (result.Data.ContainsKey("ACH_CHALLENGER")) challengerAchieved = true;
+
             Debug.Log("I checked with the server! I know which achievements you already have.");
         }, error => {
             Debug.LogError("Oh no! I couldn't talk to the server to check achievements.");
@@ -299,6 +318,39 @@ public class MindfulnessController : MonoBehaviour
         if (id == "ACH_CENTURY" && gm != null) gm.centuryAchieved = true;
         if (id == "ACH_BREATH_MASTER") breathMasterAchieved = true;
         if (id == "ACH_CLUTCH_CALM" && rm != null) rm.clutchCalmAchieved = true;
-        // ... add the others here too
+        
+        if (id == "ACH_INITIATE") initiateAchieved = true;
+        if (id == "ACH_RESILIENT") resilientAchieved = true;
+        if (id == "ACH_ZEN") zenAchieved = true;
+        if (id == "ACH_CHALLENGER") challengerAchieved = true;
+    }
+    private void FetchLifetimeStats()
+    {
+        var request = new GetPlayerStatisticsRequest();
+        PlayFabClientAPI.GetPlayerStatistics(request, result => {
+            foreach (var stat in result.Statistics)
+            {
+                if (stat.StatisticName == "TotalChallengesFaced") lifetimeChallenges = stat.Value;
+                if (stat.StatisticName == "TotalPlaytime") lifetimePlaytime = stat.Value;
+            }
+            Debug.Log($"Stats Loaded: {lifetimeChallenges} challenges, {lifetimePlaytime}s playtime.");
+        }, error => Debug.LogError("Failed to fetch stats"));
+    }
+    public void CheckRankAchievementsAtGameOver()
+    {
+        // Total = What we had before + what we just did this session
+        int grandTotalSeconds = lifetimePlaytime + (int)totalSessionTime;
+
+        if (grandTotalSeconds >= 15000) SendAchievement("RankZenEvent", "ACH_ZEN");
+        else if (grandTotalSeconds >= 5000) SendAchievement("RankResilientEvent", "ACH_RESILIENT");
+        else if (grandTotalSeconds >= 1000) SendAchievement("RankInitiateEvent", "ACH_INITIATE");
+    }
+    public void IncrementChallengeCount()
+    {
+        lifetimeChallenges++; // Increment our local tracking of the cloud stat
+        if (lifetimeChallenges >= 50 && !AchievementIsAlreadyEarned("ACH_CHALLENGER"))
+        {
+            SendAchievement("ChallengerEvent", "ACH_CHALLENGER");
+        }
     }
 }
