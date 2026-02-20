@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using PlayFab;
 using PlayFab.ClientModels;
 using System.Data.Common;
+using Unity.VisualScripting;
 
 public class MindfulnessController : MonoBehaviour
 {
@@ -51,10 +52,17 @@ public class MindfulnessController : MonoBehaviour
     private bool firstFocusAchieved = false;
     private bool marathonAchieved = false;
     private bool mindfulMasterAchieved = false;
-    
+    private int breathCycleCount = 0;
+    private bool breathMasterAchieved = false;
+
+    private GameManager gm;
+    private ResilienceManager rm;
 
     void Start()
     {
+        gm = Object.FindFirstObjectByType<GameManager>();
+        rm = Object.FindFirstObjectByType<ResilienceManager>();
+
         SyncAchievementStatus();
         calmnessSlider.value = 50f; 
         CalculateNewFocusDuration();
@@ -62,7 +70,7 @@ public class MindfulnessController : MonoBehaviour
 
     void Update()
     {
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+        if (gm == null || Time.timeScale == 0f) return;
         if (Time.timeScale == 0f) return;
         ManageBreathingRhythm();
         HandlePlayerInput();
@@ -101,11 +109,17 @@ public class MindfulnessController : MonoBehaviour
         if (timer >= breathDuration)
         {
             timer = 0f;
+            breathCycleCount++;
             if (!firstFocusAchieved)
             {
                 firstFocusAchieved = true; 
                 Debug.Log("Breath Cycle Complete! Sending Achievement Signal...");
                 SendAchievement("FirstFocusEvent", "ACH_FIRST_FOCUS");
+            }
+            if (breathCycleCount >= 20 && !breathMasterAchieved)
+            {
+                breathMasterAchieved = true;
+                PlayFabAuth.SubmitPlayFabEvent("BreathMasterEvent");
             }
         }
         isExhaling = timer > (breathDuration / 2f); 
@@ -251,24 +265,40 @@ public class MindfulnessController : MonoBehaviour
     }
     private void SendAchievement(string eventName, string achievementId)
     {
+        SetLocalAchievementTrue(achievementId);
         PlayFabAuth.SubmitPlayFabEvent(eventName);
     }
-    private bool AchievementIsAlreadyEarned(string id)
+    public bool AchievementIsAlreadyEarned(string id)
     {
         if (id == "ACH_FIRST_FOCUS" && firstFocusAchieved) return true;
         if (id == "ACH_MARATHON" && marathonAchieved) return true;
         if (id == "ACH_MINDFUL" && mindfulMasterAchieved) return true;
+
+        if (id == "ACH_CENTURY" && gm != null && gm.centuryAchieved) return true;
+        if (id == "ACH_BREATH_MASTER" && breathMasterAchieved) return true;
+        if (id == "ACH_CLUTCH_CALM" && rm != null && rm.clutchCalmAchieved) return true;
         return false;
     }
-    private void SyncAchievementStatus()
+    public void SyncAchievementStatus()
     {
         PlayFabClientAPI.GetUserData(new GetUserDataRequest(), result => {
             if (result.Data.ContainsKey("ACH_FIRST_FOCUS")) firstFocusAchieved = true;
             if (result.Data.ContainsKey("ACH_MARATHON")) marathonAchieved = true;
             if (result.Data.ContainsKey("ACH_MINDFUL")) mindfulMasterAchieved = true;
+
+            if (gm != null && result.Data.ContainsKey("ACH_CENTURY")) gm.centuryAchieved = true;
+            if (result.Data.ContainsKey("ACH_BREATH_MASTER")) breathMasterAchieved = true;
+            if (rm != null && result.Data.ContainsKey("ACH_CLUTCH_CALM")) rm.clutchCalmAchieved = true;
             Debug.Log("I checked with the server! I know which achievements you already have.");
         }, error => {
             Debug.LogError("Oh no! I couldn't talk to the server to check achievements.");
         });
+    }
+    public void SetLocalAchievementTrue(string id)
+    {
+        if (id == "ACH_CENTURY" && gm != null) gm.centuryAchieved = true;
+        if (id == "ACH_BREATH_MASTER") breathMasterAchieved = true;
+        if (id == "ACH_CLUTCH_CALM" && rm != null) rm.clutchCalmAchieved = true;
+        // ... add the others here too
     }
 }

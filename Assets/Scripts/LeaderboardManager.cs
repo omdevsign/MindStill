@@ -39,37 +39,38 @@ public class LeaderboardManager : MonoBehaviour
 
     private void OnLeaderboardSuccess(GetLeaderboardResult result)
     {
+        // GET THE ID FROM THE SOURCE OF TRUTH
+        string currentUserId = PlayFabAuth.GetMyId(); 
+        Debug.Log("Highlighting check for ID: " + currentUserId);
+
         foreach (var item in result.Leaderboard)
         {
             GameObject entry = Instantiate(entryPrefab, entryParent);
             
-            // Get references to text components
             Text rankText = entry.transform.Find("RankText").GetComponent<Text>();
             Text nameText = entry.transform.Find("PlayerNameText").GetComponent<Text>();
             Text scoreText = entry.transform.Find("ScoreText").GetComponent<Text>();
 
-            // PlayFab rank starts at 0, so we add 1
             rankText.text = (item.Position + 1).ToString();
-            
-            // Use DisplayName if available, otherwise use PlayFabId
             nameText.text = !string.IsNullOrEmpty(item.DisplayName) ? item.DisplayName : "Player " + item.PlayFabId;
-            
             scoreText.text = item.StatValue.ToString() + "s";
 
-            if (item.PlayFabId == myId) 
+            // COMPARE
+            if (item.PlayFabId == currentUserId) 
             {
-                // Change the colors to make the player stand out
-                nameText.color = Color.yellow;
-                rankText.color = Color.yellow;
-                scoreText.color = Color.yellow;
+                // 1. Text Highlight
+                Color highlightColor = new Color(1f, 0.92f, 0.016f, 1f); // Gold/Yellow
+                nameText.color = highlightColor;
+                rankText.color = highlightColor;
+                scoreText.color = highlightColor;
+                nameText.fontStyle = FontStyle.Bold;
                 
-                // Optional: Make the text bold
-                nameText.fontStyle = FontStyle.Bold; 
+                Debug.Log("Highlighted current user: " + item.DisplayName);
             }
-            Canvas.ForceUpdateCanvases();
-            entryParent.GetComponent<VerticalLayoutGroup>().enabled = false;
-            entryParent.GetComponent<VerticalLayoutGroup>().enabled = true;
         }
+        
+        // Refresh UI layout once after the loop, not inside it (Better for performance)
+        LayoutRebuilder.ForceRebuildLayoutImmediate(entryParent.GetComponent<RectTransform>());
     }
 
     private void OnError(PlayFabError error)

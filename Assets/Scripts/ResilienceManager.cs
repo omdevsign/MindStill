@@ -56,6 +56,7 @@ public class ResilienceManager : MonoBehaviour
     private int breathingStage = 0; 
     private KeyCode[] groundingSequence;
     private int groundingIndex = 0;
+    public bool clutchCalmAchieved = false;
 
     void Start()
     {
@@ -360,8 +361,15 @@ public class ResilienceManager : MonoBehaviour
         Time.timeScale = 1f; 
         Time.fixedDeltaTime = originalFixedDeltaTime;
 
-        if (success)
+        if (success && mc != null)
         {
+            if (mc.GetCalmness() < 20f && !mc.AchievementIsAlreadyEarned("ACH_CLUTCH_CALM"))
+            {
+                clutchCalmAchieved = true;
+                PlayFabAuth.SubmitPlayFabEvent("ClutchCalmEvent");
+                mc.SetLocalAchievementTrue("ACH_CLUTCH_CALM");
+                Debug.Log("Clutch Achievement Triggered!");
+            }
             mc.ApplyAnxietyPenalty(-successBonus); 
             Debug.Log("Challenge Passed!");
         }

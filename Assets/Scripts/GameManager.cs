@@ -41,6 +41,8 @@ public class GameManager : MonoBehaviour
     [Header("Resume Countdown")]
     [SerializeField] public Text countdownText;
 
+    public bool centuryAchieved = false;
+
     void Start()
     {
         Time.timeScale = 1f;
@@ -59,7 +61,18 @@ public class GameManager : MonoBehaviour
         sessionScore += Time.deltaTime;
         if (realtimeScoreText != null)
             realtimeScoreText.text = "Score: " + sessionScore.ToString("F1") + "s";
-
+        
+        if (sessionScore >= 100f)
+        {
+            MindfulnessController mc = FindFirstObjectByType<MindfulnessController>();
+            if (mc != null && !mc.AchievementIsAlreadyEarned("ACH_CENTURY"))
+            {
+                // We use the same 'SendAchievement' logic pattern
+                PlayFabAuth.SubmitPlayFabEvent("CenturyEvent");
+                // Mark it true locally in MC so it doesn't run every frame
+                mc.SetLocalAchievementTrue("ACH_CENTURY"); 
+            }
+        }
         currentSpeed = baseSpeed + (sessionScore * speedIncreaseRate);
         currentSpeed = Mathf.Clamp(currentSpeed, baseSpeed, maxSpeed);
         
